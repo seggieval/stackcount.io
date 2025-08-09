@@ -1,0 +1,66 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite" // swap to "postgresql" in prod
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String    @id @default(cuid())
+  name           String?
+  email          String    @unique
+  emailVerified  DateTime?
+  image          String?
+  hashedPassword String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  transactions Transaction[]
+  companies    Company[]
+  notes        Note[]      // <— add back-relation
+}
+
+model Company {
+  id           String        @id @default(cuid())
+  name         String
+  userId       String
+  user         User          @relation(fields: [userId], references: [id])
+  createdAt    DateTime      @default(now())
+  transactions Transaction[]
+  notes        Note[]        // <— add back-relation
+}
+
+model Transaction {
+  id        String   @id @default(cuid())
+  title     String
+  amount    Float
+  type      String
+  category  String
+  date      DateTime
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+model Note {
+  id         String   @id @default(cuid())
+  companyId  String
+  userId     String
+  title      String   @default("")
+  content    String
+  pinned     Boolean  @default(false)
+  archived   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // proper relations (the missing piece):
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId, userId, pinned, archived])
+}
