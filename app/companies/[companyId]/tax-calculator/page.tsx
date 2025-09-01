@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
@@ -8,165 +8,288 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { IconChartBar } from "@tabler/icons-react";
+import { cn } from "@/lib/utils";
+
+import { STATE_TAX_MAP, INCOME_TYPES } from "@/lib/tax/constants";
+
 
 type Transaction = {
   id: string;
-  amount: number;
+  amount: number; // positive number
   type: "income" | "expense";
 };
 
-// 👇 State tax % (simplified)
-const STATE_TAX_MAP: Record<string, number> = {
-  California: 0.09,
-  Texas: 0.00,
-  Florida: 0.00,
-  Massachusetts: 0.05,
-  NewYork: 0.06,
+type ApiTransactions =
+  | Transaction[]
+  | { transactions?: Transaction[]; data?: Transaction[] }
+  | any;
+
+const currency = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  maximumFractionDigits: 2,
+});
+
+// Normalize names like "NewYork" -> "New York", lowercase safe compare
+const normalizeState = (name?: string): string | undefined => {
+  if (!name) return undefined;
+  const clean = name.replace(/\s+/g, " ").trim().toLowerCase();
+  const entry = Object.keys(STATE_TAX_MAP).find(
+    st => st.toLowerCase() === clean || st.replace(/\s+/g, "").toLowerCase() === clean.replace(/\s+/g, "")
+  );
+  return entry ?? undefined;
 };
 
-// 👇 Income type presets
-const INCOME_TYPES = [
-  { label: "W-2 Job", value: "w2", rate: 0.10 },
-  { label: "Self-Employed", value: "sole", rate: 0.153 },
-  { label: "LLC / S-Corp", value: "llc", rate: 0.10 },
-  { label: "Freelance / 1099", value: "freelance", rate: 0.153 },
-  { label: "Capital Gains", value: "capital", rate: 0.15 },
-  { label: "Rental Income", value: "rental", rate: 0.12 },
-];
 
 export default function TaxPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { companyId } = useParams();
+  const { companyId } = useParams<{ companyId: string }>();
+
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [state, setState] = useState("");
-  const [incomeType, setIncomeType] = useState("sole");
-  const [customDeduction, setCustomDeduction] = useState("");
+  const [loadingTx, setLoadingTx] = useState(true);
+  const [txError, setTxError] = useState<string | null>(null);
+
+  const [state, setState] = useState<string>("");
+  const [incomeType, setIncomeType] = useState<string>("sole");
+  const [customDeduction, setCustomDeduction] = useState<string>("");
+
+  const [detectingLocation, setDetectingLocation] = useState(true);
   const [locationFallback, setLocationFallback] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/login");
-    if (status === "authenticated") {
-      fetchTransactions();
-      fetchUserLocation();
-    }
-  }, [status]);
+  }, [status, router]);
+
+  useEffect(() => {
+    if (status !== "authenticated") return;
+    fetchTransactions();
+    detectUserLocation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, companyId]);
 
   async function fetchTransactions() {
-    const res = await fetch(`/api/companies/${companyId}/dashboard`);
-    const data = await res.json();
-    setTransactions(data);
+    setLoadingTx(true);
+    setTxError(null);
+    try {
+      const res = await fetch(`/api/companies/${companyId}/dashboard`, { cache: "no-store" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const raw: ApiTransactions = await res.json();
+
+      const items: Transaction[] =
+        Array.isArray(raw) ? raw
+          : Array.isArray(raw?.transactions) ? raw.transactions
+            : Array.isArray(raw?.data) ? raw.data
+              : [];
+
+      // Defensive filter/shape
+      const safe = items.filter(
+        (t): t is Transaction =>
+          t && typeof t.amount === "number" && (t.type === "income" || t.type === "expense")
+      );
+      setTransactions(safe);
+    } catch (e: any) {
+      setTxError(e?.message ?? "Failed to load transactions");
+      setTransactions([]);
+    } finally {
+      setLoadingTx(false);
+    }
   }
 
-  async function fetchUserLocation() {
+  async function detectUserLocation() {
+    setDetectingLocation(true);
+    setLocationFallback(false);
+
     if (!navigator.geolocation) {
       setLocationFallback(true);
+      setDetectingLocation(false);
       return;
     }
 
-    navigator.geolocation.getCurrentPosition(async (pos) => {
-      const { latitude, longitude } = pos.coords;
-      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`);
-      const data = await res.json();
-      const detectedState = data?.address?.state;
-      if (detectedState && STATE_TAX_MAP[detectedState]) {
-        setState(detectedState);
-      } else {
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const { latitude, longitude } = pos.coords;
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+          );
+          const data = await res.json();
+          const detected = normalizeState(data?.address?.state || data?.address?.region);
+          if (detected && detected in STATE_TAX_MAP) {
+            setState(detected);
+          } else {
+            setLocationFallback(true);
+          }
+        } catch {
+          setLocationFallback(true);
+        } finally {
+          setDetectingLocation(false);
+        }
+      },
+      () => {
         setLocationFallback(true);
-      }
-    }, () => {
-      setLocationFallback(true);
-    });
+        setDetectingLocation(false);
+      },
+      { enableHighAccuracy: false, timeout: 8000 }
+    );
   }
 
-  // Core tax logic
-  const incomeTotal = transactions.filter(t => t.type === "income").reduce((acc, t) => acc + t.amount, 0);
-  const expensesTotal = transactions.filter(t => t.type === "expense").reduce((acc, t) => acc + t.amount, 0);
-  const deductible = parseFloat(customDeduction) || 0;
+  // ---- Core calculations
+  const { incomeTotal, expensesTotal } = useMemo(() => {
+    const income = transactions.reduce((acc, t) => acc + (t.type === "income" ? t.amount : 0), 0);
+    const expense = transactions.reduce((acc, t) => acc + (t.type === "expense" ? t.amount : 0), 0);
+    return { incomeTotal: income, expensesTotal: expense };
+  }, [transactions]);
+
+  const deductible = useMemo(() => {
+    const val = parseFloat(customDeduction);
+    return Number.isFinite(val) ? Math.max(0, val) : 0;
+  }, [customDeduction]);
 
   const taxableIncome = Math.max(0, incomeTotal - deductible);
-  const incomeObj = INCOME_TYPES.find(i => i.value === incomeType);
-  const baseRate = incomeObj?.rate || 0.1;
-  const stateRate = STATE_TAX_MAP[state] || 0.05;
 
-  const totalTaxRate = baseRate + stateRate;
-  const estimatedTax = taxableIncome * totalTaxRate;
+  const incomeObj = INCOME_TYPES.find((i) => i.value === incomeType);
+  const baseRate = incomeObj?.rate ?? 0.10;
+  const stateRate = (state && STATE_TAX_MAP[state]) || 0.05;
+
+  const baseTax = taxableIncome * baseRate;
+  const stateTax = taxableIncome * stateRate;
+  const estimatedTax = baseTax + stateTax;
   const netAfterTax = taxableIncome - estimatedTax;
 
+  const quarterlyEstimatedPayment = estimatedTax / 4;
+
+  const hasTx = transactions.length > 0;
+
   return (
-    <Card className="p-4 m-2 md:p-6 max-w-fit md:m-6 gap-4">
-      <h1 className="text-3xl font-title mb-0 font-bold">Tax Estimator</h1>
+    <div className="m-2 md:m-6">
+      <h2 className="text-xl font-title font-semibold flex items-center gap-2 mb-3">
+        <IconChartBar className="size-5" />
+        Tax Estimator
+      </h2>
 
-      <div className="grid gap-4 max-w-xl">
+      <Card className="gap-4 max-w-2xl p-4 md:p-6">
+        <div className="grid gap-4">
+          {/* State */}
+          <div>
+            <Label className="mb-1 block">State</Label>
+            <div className="flex gap-2 items-center">
+              <Select value={state} onValueChange={setState}>
+                <SelectTrigger>
+                  <SelectValue placeholder={detectingLocation ? "Detecting…" : "Select your state"} />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.keys(STATE_TAX_MAP).map((st) => (
+                    <SelectItem key={st} value={st}>{st}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <span className={cn("text-xs text-muted-foreground", !locationFallback && "hidden")}>
+                (Manual selection)
+              </span>
+              {!locationFallback && detectingLocation && (
+                <span className="text-xs text-muted-foreground">Trying to detect…</span>
+              )}
+            </div>
+          </div>
 
-        <div>
-          <Label className="mb-1">Detected State</Label>
-          {locationFallback ? (
-            <Select onValueChange={setState} defaultValue={state}>
+          {/* Income type */}
+          <div>
+            <Label className="mb-1 block">Income Type</Label>
+            <Select value={incomeType} onValueChange={setIncomeType}>
               <SelectTrigger>
-                <SelectValue placeholder="Select your state" />
+                <SelectValue placeholder="Select income type" />
               </SelectTrigger>
               <SelectContent>
-                {Object.keys(STATE_TAX_MAP).map((st) => (
-                  <SelectItem key={st} value={st}>{st}</SelectItem>
+                {INCOME_TYPES.map((type) => (
+                  <SelectItem key={type.value} value={type.value}>
+                    {type.label}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-          ) : (
-            <Input value={state} readOnly />
-          )}
+            <p className="text-xs text-muted-foreground mt-1">
+              Super simplified rates for quick planning—**not** tax advice.
+            </p>
+          </div>
+
+          {/* Deduction */}
+          <div>
+            <Label htmlFor="deduction" className="mb-1 block">
+              Deduction (optional)
+            </Label>
+            <Input
+              id="deduction"
+              type="number"
+              inputMode="decimal"
+              min="0"
+              value={customDeduction}
+              onChange={(e) => setCustomDeduction(e.target.value)}
+              placeholder="e.g. 1500"
+            />
+            <p className="text-xs text-muted-foreground italic mt-1">
+              Enter deductible expenses (equipment, rent, mileage, etc.).
+            </p>
+          </div>
+
+          <Separator />
+
+          {/* Data status */}
+          <div className="text-sm">
+            {loadingTx ? (
+              <p className="text-muted-foreground">Loading transactions…</p>
+            ) : txError ? (
+              <p className="text-destructive">Couldn’t load transactions: {txError}</p>
+            ) : !hasTx ? (
+              <p className="text-muted-foreground">
+                No transactions yet. Add income/expenses to see estimates.
+              </p>
+            ) : null}
+          </div>
+
+          {/* Summary */}
+          <div className="mt-0 space-y-1">
+            <h3 className="font-bold text-lg">Summary</h3>
+            <p className="text-muted-foreground">
+              Total Income: <span className="font-bold text-green-600">{currency.format(incomeTotal)}</span>
+            </p>
+            <p className="text-muted-foreground">
+              Deduction: <span className="font-bold text-yellow-600">-{currency.format(deductible)}</span>
+            </p>
+            <p className="text-muted-foreground">
+              Taxable Income: <span className="font-bold">{currency.format(taxableIncome)}</span>
+            </p>
+            <p className="text-muted-foreground">
+              Base Tax ({(baseRate * 100).toFixed(1)}%):{" "}
+              <span className="font-bold">{currency.format(baseTax)}</span>
+            </p>
+            <p className="text-muted-foreground">
+              State Tax ({(stateRate * 100).toFixed(1)}%):{" "}
+              <span className="font-bold">{currency.format(stateTax)}</span>
+            </p>
+            <p className="text-muted-foreground">
+              Estimated Total Tax ({((baseRate + stateRate) * 100).toFixed(1)}%):{" "}
+              <span className="font-bold text-red-600">{currency.format(estimatedTax)}</span>
+            </p>
+            <p className="text-muted-foreground">
+              Net After Tax:{" "}
+              <span className="font-bold text-green-700">{currency.format(netAfterTax)}</span>
+            </p>
+            <p className="text-muted-foreground">
+              Est. Quarterly Payment:{" "}
+              <span className="font-bold">{currency.format(quarterlyEstimatedPayment)}</span>
+            </p>
+          </div>
+
+          <Separator />
+
+          <p className="text-xs text-muted-foreground">
+            ⚠️ This is an educational estimate, not tax advice. Real brackets, credits, standard
+            deduction, SE adjustments, and entity-specific rules are not modeled here.
+          </p>
         </div>
-
-        <div>
-          <Label className="mb-1">Income Type</Label>
-          <Select onValueChange={setIncomeType} defaultValue={incomeType}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select income type" />
-            </SelectTrigger>
-            <SelectContent>
-              {INCOME_TYPES.map((type) => (
-                <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div>
-          <Label className="mb-1">Deduction (if applicable)</Label>
-          <Input
-            type="number"
-            value={customDeduction}
-            onChange={(e) => setCustomDeduction(e.target.value)}
-            placeholder="e.g. 1500"
-          />
-          <p className="text-xs text-muted-foreground italic mt-1">
-            Enter amount you plan to deduct from your income as an expense (e.g. equipment, rent).
-          </p>
-        </div>
-
-        <Separator />
-
-        <div className="mt-0 space-y-2">
-          <h2 className="font-bold mb-0 text-lg">Summary</h2>
-          <p className="text-muted-foreground">
-            Total Income: <span className="font-bold text-green-600">${incomeTotal.toFixed(2)}</span>
-          </p>
-          <p className="text-muted-foreground">
-            Deduction: <span className="font-bold text-yellow-600">-${deductible.toFixed(2)}</span>
-          </p>
-          <p className="text-muted-foreground">
-            Taxable Income: <span className="font-bold">${taxableIncome.toFixed(2)}</span>
-          </p>
-          <p className="text-muted-foreground">
-            Estimated Tax ({(totalTaxRate * 100).toFixed(1)}%):
-            <span className="font-bold text-red-600"> ${estimatedTax.toFixed(2)}</span>
-          </p>
-          <p className="text-muted-foreground">
-            Net After Tax: <span className="font-bold text-green-700">${netAfterTax.toFixed(2)}</span>
-          </p>
-        </div>
-
-      </div>
-    </Card>
+      </Card>
+    </div>
   );
 }

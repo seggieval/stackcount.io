@@ -11,7 +11,7 @@ import { z } from "zod"
 const updateSchema = z.object({
   title: z.string().max(120).optional(),
   content: z.string().optional(),
-  pinned: z.boolean().optional(),
+  completed: z.boolean().optional(),
   archived: z.boolean().optional(),
 }).refine((d) => Object.keys(d).length > 0, { message: "No fields to update" })
 

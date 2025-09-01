@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/Header";
+import { Card, CardContent } from "@/components/ui/card";
+import Footer from "@/components/Footer";
 
 type Company = {
   id: string;
@@ -72,10 +74,10 @@ export default function CompanySelectorPage() {
   }
 
   return (
-    <>
+    <main className="flex flex-col min-h-screen">
       <Header />
-      <div className="max-w-2xl mx-auto py-20 px-4">
-        <h1 className="text-3xl font-title mb-6">Select or Create a Company</h1>
+      <div className="flex-1 max-w-xl w-full mx-auto py-20 px-4">
+        <h1 className="text-3xl font-title mb-6 font-bold">Select or Create a Company</h1>
 
         <form onSubmit={createCompany} className="flex gap-2 mb-6 max-w-full">
           <div className="flex-1">
@@ -92,28 +94,31 @@ export default function CompanySelectorPage() {
           <Button type="submit">Create</Button>
         </form>
 
-
-        <ul className="space-y-2">
+        <div className="space-y-2">
           {companies.map((c) => (
-            <li
+            <Card
               key={c.id}
-              className="p-4 border rounded hover:bg-muted cursor-pointer flex items-center justify-between"
+              className="cursor-pointer hover:bg-muted/50 transition py-0"
               onClick={() => router.push(`/companies/${c.id}/dashboard`)}
             >
-              <div className="font-medium">{c.name}</div>
-              <Button
-                className="bg-transparent text-xs px-2 py-1 border border-destructive text-destructive rounded hover:bg-destructive/10"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  deleteCompany(c.id);
-                }}
-              >
-                Delete
-              </Button>
-            </li>
+              <CardContent className="flex items-center justify-between p-4">
+                <div className="font-medium">{c.name}</div>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    deleteCompany(c.id)
+                  }}
+                >
+                  Delete
+                </Button>
+              </CardContent>
+            </Card>
           ))}
-        </ul>
+        </div>
       </div>
-    </>
-  );
+      <Footer />
+    </main>
+  )
 }

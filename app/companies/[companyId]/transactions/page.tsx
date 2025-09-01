@@ -36,7 +36,7 @@ import {
   IconChevronsRight,
   IconDotsVertical,
   IconPlus,
-  IconSearch
+  IconCreditCardPay
 } from "@tabler/icons-react";
 import {
   DropdownMenu,
@@ -160,6 +160,10 @@ export default function TransactionPage() {
   return (
     <div className="p-2 md:p-6 space-y-6">
       {/* Top bar: filter placeholder + create */}
+      <h2 className="text-xl font-title font-semibold flex items-center gap-2 mb-3">
+        <IconCreditCardPay className="size-5" />
+        Transactions
+      </h2>
       <div className="flex gap-3 flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
         <div className="flex flex-col sm:flex-row gap-3 order-1 md:order-0">
           {/* Search input */}

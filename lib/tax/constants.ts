@@ -1,0 +1,70 @@
+// lib/tax/constants.ts
+
+// ──────────────────────────────────────────────
+// State-level proxy rates (flat approximations)
+// ──────────────────────────────────────────────
+export const STATE_TAX_MAP: Record<string, number> = {
+  "Alaska": 0.00,
+  "Florida": 0.00,
+  "Nevada": 0.00,
+  "New Hampshire": 0.00,
+  "South Dakota": 0.00,
+  "Tennessee": 0.00,
+  "Texas": 0.00,
+  "Washington": 0.00,
+  "Wyoming": 0.00,
+  "Arizona": 0.025,
+  "Colorado": 0.044,
+  "Georgia": 0.054,
+  "Idaho": 0.058,
+  "Illinois": 0.0495,
+  "Indiana": 0.030,
+  "Iowa": 0.044,
+  "Kentucky": 0.040,
+  "Massachusetts": 0.050,
+  "Michigan": 0.0425,
+  "Mississippi": 0.047,
+  "North Carolina": 0.045,
+  "North Dakota": 0.025,
+  "Pennsylvania": 0.0307,
+  "Utah": 0.0455,
+  "Alabama": 0.050,
+  "Arkansas": 0.044,
+  "California": 0.070,
+  "Connecticut": 0.055,
+  "Delaware": 0.055,
+  "District of Columbia": 0.060,
+  "Hawaii": 0.060,
+  "Kansas": 0.057,
+  "Louisiana": 0.045,
+  "Maine": 0.058,
+  "Maryland": 0.055,
+  "Minnesota": 0.062,
+  "Missouri": 0.045,
+  "Montana": 0.055,
+  "Nebraska": 0.056,
+  "New Jersey": 0.058,
+  "New Mexico": 0.053,
+  "New York": 0.060,
+  "Ohio": 0.038,
+  "Oklahoma": 0.0475,
+  "Oregon": 0.075,
+  "Rhode Island": 0.055,
+  "South Carolina": 0.049,
+  "Vermont": 0.058,
+  "Virginia": 0.0575,
+  "West Virginia": 0.050,
+  "Wisconsin": 0.058,
+} as const;
+
+// ──────────────────────────────────────────────
+// Income type proxies (flat effective rates)
+// ──────────────────────────────────────────────
+export const INCOME_TYPES = [
+  { label: "W-2 Job", value: "w2", rate: 0.12 },
+  { label: "Self-Employed (SE tax only)", value: "sole", rate: 0.153 },
+  { label: "LLC / S-Corp (simple)", value: "llc", rate: 0.12 },
+  { label: "Freelance / 1099", value: "freelance", rate: 0.153 },
+  { label: "Capital Gains (LT)", value: "capital", rate: 0.15 },
+  { label: "Rental Income", value: "rental", rate: 0.12 },
+] as const;

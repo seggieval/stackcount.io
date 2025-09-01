@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-@custom-variant dark (&:where(.dark, .dark *));
+/* @custom-variant dark (&:where(.dark, .dark *)); */
 
 @theme inline {
   --color-whitetext: #F9FAFB;
@@ -90,6 +90,7 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
   --background: var(--color-whitetext);
+  --header-height: 4rem;
 }
 
 /* Animation of title */
@@ -110,7 +111,7 @@
   animation: blink 1s step-start infinite;
 }
 
-.dark {
+/* .dark {
   --sidebar: hsl(240 5.9% 10%);
   --sidebar-foreground: hsl(240 4.8% 95.9%);
   --sidebar-primary: hsl(224.3 76.3% 48%);
@@ -131,11 +132,15 @@
   --muted-foreground: var(--color-whitetext);
   --color-background: var(--color-blacktext);
   --background: var(--color-blacktext);
-}
+} */
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
+  }
+
+  html{
+    scroll-behavior: smooth;
   }
 
   body {
@@ -143,9 +148,9 @@
     transition: background-color 0.2s ease, color 0.2s ease;
   }
 
-  .dark body {
+  /* .dark body {
     @apply text-whitetext bg-blacktext;
-  }
+  } */
 
   .container {
     @apply mx-auto px-[15px];
