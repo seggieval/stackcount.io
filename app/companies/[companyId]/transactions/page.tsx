@@ -217,7 +217,7 @@ export default function TransactionPage() {
             <Button
               variant="default"
               size="sm"
-              className="h-[-webkit-fill-available] py-2"
+              className="max-h-[40px] py-2"
               onClick={() => setIsCreateOpen(true)}
             >
               <IconPlus className="mr-2 h-4 w-4" />
