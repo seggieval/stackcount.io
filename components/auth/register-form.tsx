@@ -1,56 +1,77 @@
-"use client"
+"use client";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import Link from "next/link"
-import { Label } from "@/components/ui/label"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
-import GoogleButton from "../GoogleButton"
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import Link from "next/link";
+import { Label } from "@/components/ui/label";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import GoogleButton from "../GoogleButton";
+import { signIn } from "next-auth/react";
 
 export function RegisterForm({ className, ...props }: React.ComponentProps<"div">) {
-  const [name, setName] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
-  const router = useRouter()
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setError("")
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
+    // 1) Create account
     const res = await fetch("/api/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, email, password }),
-    })
+    });
 
-    setLoading(false)
-
-    if (res.ok) {
-      router.push("/login") // redirect to login after registration
-    } else {
-      const data = await res.json()
-      setError(data.error || "Something went wrong")
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setError(data.error || "Something went wrong");
+      setLoading(false);
+      return;
     }
-  }
+
+    // 2) Auto-login with the same credentials
+    const login = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+      callbackUrl: "/dashboard", // change this to where you want them to land
+    });
+
+    setLoading(false);
+
+    if (login?.error) {
+      setError(login.error);
+      return;
+    }
+
+    // 3) Push to returned URL
+    router.push(login?.url ?? "/dashboard");
+    router.refresh();
+  };
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Create an account</CardTitle>
-          <CardDescription>Sign up with your email and password</CardDescription>
+          <CardDescription>
+            Sign up with your email and password
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit}>
@@ -64,6 +85,7 @@ export function RegisterForm({ className, ...props }: React.ComponentProps<"div"
                   Or continue with
                 </span>
               </div>
+
               <div className="grid gap-3">
                 <Label htmlFor="name">Name</Label>
                 <Input
@@ -75,6 +97,7 @@ export function RegisterForm({ className, ...props }: React.ComponentProps<"div"
                   required
                 />
               </div>
+
               <div className="grid gap-3">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -86,6 +109,7 @@ export function RegisterForm({ className, ...props }: React.ComponentProps<"div"
                   required
                 />
               </div>
+
               <div className="grid gap-3">
                 <Label htmlFor="password">Password</Label>
                 <Input
@@ -96,9 +120,13 @@ export function RegisterForm({ className, ...props }: React.ComponentProps<"div"
                   required
                 />
               </div>
-              {error && <p className="text-sm text-red-500 -mt-4 -mb-2">{error}</p>}
+
+              {error && (
+                <p className="text-sm text-red-500 -mt-4 -mb-2">{error}</p>
+              )}
+
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Registering..." : "Sign up"}
+                {loading ? "Registering…" : "Sign up"}
               </Button>
 
               <div className="text-center text-sm">
@@ -117,5 +145,5 @@ export function RegisterForm({ className, ...props }: React.ComponentProps<"div"
         <Link href="#">Privacy Policy</Link>.
       </div>
     </div>
-  )
+  );
 }
