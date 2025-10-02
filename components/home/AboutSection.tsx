@@ -63,7 +63,7 @@ export default function AboutSection({
   ],
   ctas = [
     { label: "Use it (free)", href: "/register", variant: "default" },
-    { label: "Hire me as an intern", href: "/about", variant: "outline" },
+    { label: "Hire me as an intern", href: "https://sierykov.com/", variant: "outline" },
   ],
   imageSrc = "/hero-about.png",
   imageAlt = "Absolutely real, definitely not staged product screenshot",
