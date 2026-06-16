@@ -120,9 +120,10 @@ export default function Page() {
       <Header />
 
       <div className="max-w-xl w-full mx-auto py-16 px-4 flex-1">
-        <h1 className="text-3xl font-bold mb-2">Invest in my... whatever</h1>
+        <h1 className="text-3xl font-bold mb-2">Support stackCount</h1>
         <p className="text-muted-foreground mb-6">
-          Free app, zero paywalls. Donations fuel caffeine, server bills, and my bold plan to land a CS internship.
+          stackCount is free with no paywalls. Optional donations help cover hosting,
+          OpenAI API costs, and ongoing development.
         </p>
 
         <Card className="p-4 space-y-4">

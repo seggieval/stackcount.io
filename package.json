@@ -1,6 +1,7 @@
 {
   "name": "stackcount.io",
   "version": "0.1.0",
+  "description": "Full-stack finance app with OpenAI GPT integration — portfolio project by Kiril Sierykov",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",

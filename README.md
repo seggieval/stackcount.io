@@ -1,132 +1,79 @@
+# stackCount.io
+
+**Full-stack finance app with OpenAI GPT integration — portfolio project by Kiril Sierykov.**
+
+stackCount tracks income, expenses, and profit across multiple companies, and uses the **OpenAI GPT API** to generate automated financial insights from transaction data. Built to demonstrate full-stack development skills: Next.js, PostgreSQL, authentication, payments, and production AI API integration.
 
 ---
 
-# stackCount.io 💸
+## Highlights
 
-Welcome to **stackCount.io** – aka *“my first decent SaaS project that nobody asked for but I built anyway.”*  
-This is a fake-serious **AI-accountant-but-not-really** app. Built as a portfolio project by **Kiril Sierykov**, age 18, future billionaire (probably).  
-
----
-
-## ✨ What It Does
-- Lets you log in (Google or email/password, whichever breaks less often)
-- Pretends to track your income, expenses, and tax estimates
-- Lets you create multiple "companies" (even if you own zero in real life)
-- Has a donate button (because why not, Stripe is fun)
-- Runs on Vercel, because I’m too lazy to set up servers
-- Mobile friendly, so you can cry about your expenses on the go
+- **OpenAI GPT API** — Analyze feature sends 90 days of transactions to `gpt-4o-mini` and returns structured financial insights (my first production AI API integration)
+- **Full-stack Next.js 15** — App Router, server components, API routes, middleware
+- **Auth** — NextAuth.js with Google OAuth and email/password (bcrypt + Prisma)
+- **Database** — Neon PostgreSQL with Prisma ORM
+- **Payments** — Stripe donations
+- **Deployed** — Vercel production with environment-based configuration
 
 ---
 
-## 🛠️ Tech Stack
-- **Frontend:** Next.js 15 + React 19 + Tailwind v4 + shadcn/ui
-- **Backend:** Next.js App Router APIs
-- **Database:** Neon Postgres (free tier, baby)
-- **Auth:** NextAuth.js
-- **Payments:** Stripe (donations only, I’m not your accountant)
-- **Hosting:** Vercel (one-click deploy flex)
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | Next.js 15, React 19, Tailwind CSS v4, shadcn/ui |
+| Backend | Next.js App Router API routes |
+| Database | Neon PostgreSQL + Prisma |
+| Auth | NextAuth.js (Google OAuth + credentials) |
+| AI | OpenAI GPT API (`gpt-4o-mini`) |
+| Payments | Stripe |
+| Hosting | Vercel |
 
 ---
 
-## 📂 Project Structure
+## Project Structure
+
+```
+app/        # App Router pages & API routes
+components/ # UI components
+lib/        # Auth, Prisma, analysis helpers
+prisma/     # Database schema
+public/     # Static assets
 ```
 
-app/        # App Router pages & API routes
-components/ # Reusable UI stuff
-lib/        # Helpers (auth, prisma, utils)
-prisma/     # Schema for Prisma
-public/     # Static junk (favicon, images)
-
-````
-
 ---
 
-## 🧑‍💻 Local Setup (if you’re into pain)
+## Local Setup
 
-Clone it:
 ```bash
-git clone https://github.com/yourusername/stackcount.io.git
+git clone https://github.com/seggieval/stackcount.io.git
 cd stackcount.io
-npm install
-````
+pnpm install
+```
 
-Set up your `.env` (copy-paste keys like a hacker, but don’t commit them to GitHub unless you enjoy free identity theft):
+Create a `.env` file with at minimum:
 
 ```env
-# Database
 DATABASE_URL=
-DIRECT_URL=
-DATABASE_URL_UNPOOLED=
-PGDATABASE=
-PGHOST=
-PGHOST_UNPOOLED=
-PGPASSWORD=
-PGUSER=
-POSTGRES_DATABASE=
-POSTGRES_HOST=
-POSTGRES_PASSWORD=
-POSTGRES_PRISMA_URL=
-POSTGRES_URL=
-POSTGRES_URL_NON_POOLING=
-POSTGRES_URL_NO_SSL=
-POSTGRES_USER=
-
-# Auth / NextAuth
-NEXTAUTH_URL=
+NEXTAUTH_URL=http://localhost:3000
 NEXTAUTH_SECRET=
 AUTH_GOOGLE_ID=
 AUTH_GOOGLE_SECRET=
-AUTH_SECRET=
-AUTH_URL=
-
-# APIs
 OPENAI_API_KEY=
-RESEND_API_KEY=
-
-# Stripe
-STRIPE_SECRET_KEY=
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
-STRIPE_WEBHOOK_SECRET=
-
-# Upstash Redis
-UPSTASH_REDIS_REST_URL=
-UPSTASH_REDIS_REST_TOKEN=
-
-# Vercel / Stack
-NEON_PROJECT_ID=
-NEXT_PUBLIC_STACK_PROJECT_ID=
-NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY=
-STACK_SECRET_SERVER_KEY=
-VERCEL_OIDC_TOKEN=
 ```
 
-Run it:
+Run the dev server:
 
 ```bash
-npm run dev
+pnpm dev:clean
 ```
 
-Open [http://localhost:3000](http://localhost:3000) and pray.
+Open [http://localhost:3000](http://localhost:3000).
 
 ---
 
-## 🤑 Donate
+## Author
 
-Want to support this masterpiece?
-There’s a donate page with **Stripe + CashApp**.
-Go ahead, make me rich by \$1.
+**Kiril Sierykov** — [sierykov.com](https://sierykov.com)
 
----
-
-## 📜 License
-
-MIT – do whatever you want, just don’t blame me when IRS comes after you.
-
----
-
-## 👤 Author
-
-Built by **Kiril Sierykov** (a.k.a the guy skipping college).
-Portfolio project only.
-If you’re a recruiter: *yes, I’m available for hire and I'm 18 yo.*
-
+Built as a portfolio project to demonstrate full-stack development and OpenAI GPT API integration.

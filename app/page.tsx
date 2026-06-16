@@ -35,7 +35,7 @@ export default function Home() {
           <div className="flex flex-col-reverse lg:flex-row items-center lg:justify-between gap-6 py-12 md:py-16">
             <div className="flex flex-col items-start justify-center text-left max-w-2xl">
               <span className="font-title text-xl sm:text-2xl text-muted-foreground mb-2">
-                Built during caffeine highs and existential dread.
+                Full-stack portfolio project · OpenAI GPT integrated
               </span>
 
               <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold font-title leading-tight">
@@ -44,12 +44,13 @@ export default function Home() {
               </h1>
 
               <p className="mt-6 text-lg sm:text-xl font-code text-muted-foreground">
-                Not your all-in-one AI platform — just my portfolio project disguised as one.
-                Free to use, donation-supported, and mainly here to help me land a CS internship.
+                A finance tracker I built to sharpen my full-stack skills — with a real
+                OpenAI GPT API powering automated business insights. Track income, expenses,
+                and profit across multiple companies. Free to use.
               </p>
 
               <Button className="mt-8 text-lg px-8 py-4 self-start" onClick={handleClick}>
-                Pretend to sign up
+                Get started free
               </Button>
             </div>
           </div>

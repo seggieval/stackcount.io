@@ -25,50 +25,51 @@ type Feature = {
 const defaultFeatures: Feature[] = [
   {
     title: "Track income & expenses",
-    description: "Or just stare at numbers until they look impressive on LinkedIn.",
+    description: "Log transactions by category, filter by type, and keep a clear record of cash flow.",
     icon: Wallet,
   },
   {
     title: "Profit analytics",
-    description: "Charts that prove I can import Recharts without crying.",
+    description: "Interactive charts and daily profit breakdowns to visualize how your business is performing.",
     icon: PieChart,
   },
   {
     title: "Multi-company workspaces",
-    description: "Because running one fake startup wasn’t enough.",
+    description: "Manage separate companies with isolated dashboards, transactions, and notes.",
     icon: Building2,
   },
   {
-    title: "AI-assisted insights",
-    description: "Basically ChatGPT whispering, 'maybe stop eating out so much.'",
+    title: "OpenAI GPT insights",
+    description:
+      "Connected to the OpenAI GPT API — analyzes 90 days of transactions and returns structured financial insights.",
     icon: BarChart3,
   },
   {
     title: "CSV import / export",
-    description: "Upload chaos, download chaos — portfolio points secured.",
+    description: "Import transaction data and export reports for accounting or personal records.",
     icon: FileSpreadsheet,
   },
   {
     title: "Privacy & security",
-    description: "I once ran `npm audit fix` so you know it’s safe.",
+    description: "Google OAuth and credential auth via NextAuth, with per-user data isolation in PostgreSQL.",
     icon: Lock,
   },
   {
-    title: "Cloud backups",
-    description: "Totally not just sitting in a free Neon Postgres tier.",
+    title: "Cloud storage",
+    description: "Data persisted on Neon Postgres with Prisma ORM — accessible from any device.",
     icon: Cloud,
   },
   {
     title: "One-click exports",
-    description: "For when recruiters demand proof this app actually exists.",
+    description: "Download filtered transaction data as CSV for reporting or backup.",
     icon: Download,
   },
 ]
 
 export function FeatureSection({
   id = "features",
-  headline = "Totally serious features (wink wink).",
-  subhead = "Everything you’d expect from a billion-dollar SaaS — except it’s just me, coding for an internship.",
+  headline = "Features",
+  subhead = "A full-stack finance app built to demonstrate real-world skills — from database design to AI API integration.",
   features = defaultFeatures,
   className,
 }: {

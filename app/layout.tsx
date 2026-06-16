@@ -34,33 +34,33 @@ function absoluteUrl(path = "") {
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://stackcount.io"),
   title: {
-    default: "stackCount — Free AI accountant (donation-supported)",
+    default: "stackCount — AI-Powered Finance Tracker",
     template: "%s | stackCount",
   },
   description:
-    "Free, donation-supported AI accountant to track profit, expenses, and estimated taxes. Built by a teen developer as a portfolio project to earn a CS internship.",
+    "Full-stack portfolio project with OpenAI GPT integration. Track income, expenses, profit, and get AI-generated financial insights. Built by Kiril Sierykov.",
   applicationName: "stackCount",
   keywords: [
-    "AI accountant",
-    "free bookkeeping",
-    "profit tracker",
+    "AI finance app",
+    "OpenAI GPT integration",
     "expense tracker",
-    "tax estimator",
-    "donation supported software",
-    "portfolio project",
+    "profit analytics",
+    "Next.js portfolio project",
+    "full-stack developer",
+    "financial insights API",
+    "bookkeeping app",
   ],
-  authors: [{ name: "Kiril (Creator)" }],
-  creator: "Kiril",
+  authors: [{ name: "Kiril Sierykov" }],
+  creator: "Kiril Sierykov",
   publisher: "stackCount",
   alternates: { canonical: absoluteUrl("/") },
   openGraph: {
     type: "website",
     url: absoluteUrl("/"),
     siteName: "stackCount",
-    title: "stackCount — Free AI accountant (donation-supported)",
+    title: "stackCount — AI-Powered Finance Tracker",
     description:
-      "Track profit, expenses, and estimated taxes — free forever. If it helps, consider donating. Built by a teen dev aiming for a CS internship.",
-    
+      "A full-stack portfolio app with OpenAI GPT integration for automated financial insights. Track profit, expenses, and estimated taxes — free to use.",
   },
   robots: {
     index: true,
@@ -92,12 +92,12 @@ export default function RootLayout({
         operatingSystem: "Web",
         url: absoluteUrl("/"),
         description:
-          "Free, donation-supported AI accountant for tracking profit, expenses, and estimated taxes.",
+          "Full-stack finance app with OpenAI GPT integration for profit tracking, expense management, and AI-generated business insights.",
         offers: {
           "@type": "Offer",
           price: "0",
           priceCurrency: "USD",
-          description: "Free forever. If it helps, consider donating.",
+          description: "Free to use. Optional donations support ongoing development.",
           url: absoluteUrl("/donate"),
         },
         creator: { "@id": "#creator" },
@@ -105,10 +105,10 @@ export default function RootLayout({
       {
         "@type": "Person",
         "@id": "#creator",
-        name: "Kiril",
+        name: "Kiril Sierykov",
         url: absoluteUrl("/about"),
         description:
-          "Teen developer building stackCount as a portfolio project and seeking a CS internship.",
+          "Full-stack developer who built stackCount as a portfolio project, including his first production OpenAI GPT API integration.",
       },
     ],
   };

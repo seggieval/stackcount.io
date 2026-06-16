@@ -9,18 +9,18 @@ import { cn } from "@/lib/utils"
 import Link from "next/link"
 
 const featuresBasic = [
-  "Track income & expenses (pretend to budget)",
-  "Visual profit charts that sometimes go up",
-  "Unlimited fake companies for your empire",
-  "Secure-ish cloud storage (I ran npm audit)",
-  "Category insights you’ll ignore later",
-  "Merchant stats: yes, it’s mostly coffee",
-  "Export to CSV (for that one accountant friend)",
+  "Income & expense tracking with categories",
+  "Profit charts and daily analytics",
+  "Multi-company workspaces",
+  "OpenAI GPT-powered financial insights",
+  "Google OAuth & secure authentication",
+  "CSV import and export",
+  "Cloud storage via PostgreSQL",
 ]
 
 const featuresSupport = [
-  "Everything in Free (obviously)",
-  "Directly support the dev ❤️ (buys more useless stuff)",
+  "Everything in Free",
+  "Support ongoing development",
 ]
 
 function FeatureList({ features }: { features: string[] }) {
@@ -37,8 +37,8 @@ function FeatureList({ features }: { features: string[] }) {
 }
 
 export default function Pricing(
-  { headline = "Pricing that’s not really pricing",
-    subhead = "It’s free. The other plan is you being a legend and tossing a donation.",
+  { headline = "Simple, honest pricing",
+    subhead = "The app is free. Donations are optional and help cover hosting and development time.",
     id = "pricing",
     className = "" }: {
       headline?: string
@@ -49,7 +49,6 @@ export default function Pricing(
 ) {
   return (
     <section id={id} className={cn("pt-20", className)}>
-      {/* Basic Plan */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -68,40 +67,39 @@ export default function Pricing(
             <CardHeader>
               <CardTitle>Free</CardTitle>
               <CardDescription>
-                All the core stuff.
+                Full access to all features.
                 <span className="font-semibold"> $0 forever.</span>
               </CardDescription>
             </CardHeader>
             <CardContent className="flex-1">
               <div className="text-4xl font-bold">$0</div>
-              <p className="text-muted-foreground mt-2">Because this is a portfolio, not a payroll.</p>
+              <p className="text-muted-foreground mt-2">No paywalls, no feature gates.</p>
               <FeatureList features={featuresBasic} />
             </CardContent>
             <CardFooter>
               <Button variant="outline" disabled className="w-full">
-                Already on this plan
+                Current plan
               </Button>
             </CardFooter>
           </Card>
 
-          {/* Support Plan */}
           <Card className="flex flex-col">
             <CardHeader>
-              <CardTitle>Support (Be a legend)</CardTitle>
+              <CardTitle>Support</CardTitle>
               <CardDescription>
-                Keep the lights on & fuel internship dreams.
+                Optional donation to help keep the project running.
               </CardDescription>
             </CardHeader>
             <CardContent className="flex-1">
               <div className="text-4xl font-bold">Your choice</div>
               <p className="text-muted-foreground mt-2">
-                No extra features — just good karma and maybe faster bug fixes.
+                Same features — your support covers server costs and development.
               </p>
               <FeatureList features={featuresSupport} />
             </CardContent>
             <CardFooter>
               <Link className="w-full" href="/donate">
-                <Button className="w-full">Donate (flex)</Button>
+                <Button className="w-full">Donate</Button>
               </Link>
             </CardFooter>
           </Card>

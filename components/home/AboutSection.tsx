@@ -30,45 +30,47 @@ export type AboutSectionProps = {
 
 /**
  * Responsive "About" section tailored for landing pages using shadcn/ui + Tailwind.
- * Only the text below was changed (sarcastic portfolio vibes). Structure untouched.
  */
 export default function AboutSection({
   id = "about",
-  eyebrow = "About (but like, ironically)",
-  title = "One guy, one laptop, several questionable life choices",
-  subtitle = "stackCount • free, donation-supported, internship-bait",
+  eyebrow = "About the project",
+  title = "My first AI API — and the app I built around it",
+  subtitle = "stackCount · full-stack · OpenAI GPT integrated",
   description =
-  "Hi, I’m Kiril — an 18-year-old building a ‘totally serious’ AI accountant mostly to prove I can ship. Use it for your money stuff. Or don’t. I’ll still put it on my resume.",
+    "I'm Kiril Sierykov, an 18-year-old developer. stackCount started as a portfolio project to prove I could ship a real full-stack app — and connecting my first AI API was the hardest part. Getting the OpenAI GPT integration working took real trial and error: API keys, prompt design, structured JSON output, caching responses, and handling failures gracefully. I stuck with it, figured it out, and now the Analyze feature sends 90 days of transaction data to GPT and returns actionable financial insights. That experience is exactly why this project belongs on my resume.",
   bullets = [
     {
-      title: "Privacy-first (scouts honor)",
-      description: "Your data isn’t my business model. I don’t even have a business model.",
-      icon: <Shield className="size-4" />,
-    },
-    {
-      title: "Actionable(ish) insights",
-      description: "If a chart tells you to stop buying iced lattes, that’s between you and the chart.",
+      title: "OpenAI GPT API integration",
+      description:
+        "Production integration with gpt-4o-mini — structured JSON insights, response caching, and error fallbacks.",
       icon: <Sparkles className="size-4" />,
     },
     {
-      title: "Setup in minutes",
-      description: "Import a CSV, press a button, pretend you ‘automated finance’. Boom.",
+      title: "Full-stack architecture",
+      description:
+        "Next.js 15 App Router, PostgreSQL via Prisma, NextAuth (Google OAuth + credentials), Stripe donations.",
+      icon: <Shield className="size-4" />,
+    },
+    {
+      title: "Shipped end-to-end",
+      description:
+        "From database schema to deployed Vercel production — auth, payments, AI analysis, and CSV export all working.",
       icon: <CheckCircle2 className="size-4" />,
     },
   ],
   metrics = [
-    { label: "People who said “nice”", value: "7" },
+    { label: "Tech stack pieces", value: "8+" },
     { label: "Avg. setup time", value: "≈ 4 min" },
-    { label: "Bugs I’ll admit publicly", value: "0" },
+    { label: "AI model", value: "GPT-4o" },
   ],
   ctas = [
-    { label: "Use it (free)", href: "/register", variant: "default" },
-    { label: "Hire me as an intern", href: "https://sierykov.com/", variant: "outline" },
+    { label: "Try it free", href: "/register", variant: "default" },
+    { label: "View my portfolio", href: "https://sierykov.com/", variant: "outline" },
   ],
   imageSrc = "/hero-about.png",
-  imageAlt = "Absolutely real, definitely not staged product screenshot",
+  imageAlt = "stackCount dashboard showing profit analytics and AI insights",
   className,
-  badges = ["Indie built", "Sleep optional", "Made with ✌️🦅 energy"],
+  badges = ["Next.js 15", "OpenAI GPT", "PostgreSQL", "TypeScript"],
 }: AboutSectionProps) {
   return (
     <section

@@ -3,12 +3,12 @@
 import { useEffect, useState } from "react";
 
 const roles = [
-  "Definitely not a Fortune 500 company_",
-  "World’s most unpaid intern_",
-  "Built with too much coffee_",
-  "Trusted by 0 accountants_",
-  "CS internship app disguised as SaaS_",
-  "Bug-driven development™_",
+  "AI-powered finance tracker_",
+  "OpenAI GPT integrated_",
+  "Full-stack Next.js app_",
+  "Portfolio project_",
+  "Profit & expense analytics_",
+  "Built by Kiril Sierykov_",
 ];
 
 export default function AnimatedTitle() {
@@ -17,7 +17,7 @@ export default function AnimatedTitle() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [charIndex, setCharIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const [isWaitingToType, setIsWaitingToType] = useState(true); // wait before typing
+  const [isWaitingToType, setIsWaitingToType] = useState(true);
 
   useEffect(() => {
     const currentRole = roles[index];
