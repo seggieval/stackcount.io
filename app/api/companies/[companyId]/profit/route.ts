@@ -1,6 +1,7 @@
 export const runtime = 'nodejs';
 
 import { prisma } from "@/lib/prisma"
+import { requireCompanyAccess } from "@/lib/require-company-access"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(
@@ -8,6 +9,11 @@ export async function GET(
   { params }: { params: { companyId: string } }
 ) {
   const { companyId } = params
+
+  const access = await requireCompanyAccess(companyId)
+  if ("error" in access) {
+    return new NextResponse(access.error, { status: access.status })
+  }
 
   const transactions = await prisma.transaction.findMany({
     where: { companyId },

@@ -4,6 +4,7 @@ import { NextResponse, NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { requireCompanyAccess } from "@/lib/require-company-access";
 
 
 export async function POST(req: Request) {
@@ -19,6 +20,11 @@ export async function POST(req: Request) {
     });
 
     if (!user) return new NextResponse("User not found", { status: 404 });
+
+    const company = await prisma.company.findFirst({
+      where: { id: companyId, userId: user.id },
+    });
+    if (!company) return new NextResponse("Not Found", { status: 404 });
 
     const transaction = await prisma.transaction.create({
       data: {
@@ -48,6 +54,11 @@ export async function GET(
 
   if (!companyId) {
     return NextResponse.json({ error: "Missing companyId" }, { status: 400 });
+  }
+
+  const access = await requireCompanyAccess(companyId);
+  if ("error" in access) {
+    return new NextResponse(access.error, { status: access.status });
   }
 
   const type = searchParams.get("type"); // income, expense, all
@@ -92,6 +103,16 @@ export async function PATCH(req: Request) {
   const { id, title, amount, category, date, type } = body;
 
   try {
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+    });
+    if (!user) return new NextResponse("Unauthorized", { status: 401 });
+
+    const existing = await prisma.transaction.findFirst({
+      where: { id, userId: user.id },
+    });
+    if (!existing) return new NextResponse("Not Found", { status: 404 });
+
     const updated = await prisma.transaction.update({
       where: { id },
       data: { title, amount: parseFloat(amount), category, date: new Date(date), type },
@@ -115,6 +136,16 @@ export async function DELETE(req: Request) {
   if (!ids.length) return new NextResponse("Missing ids", { status: 400 });
 
   try {
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+    });
+    if (!user) return new NextResponse("Unauthorized", { status: 401 });
+
+    const owned = await prisma.transaction.count({
+      where: { id: { in: ids }, userId: user.id },
+    });
+    if (owned !== ids.length) return new NextResponse("Not Found", { status: 404 });
+
     await prisma.transaction.deleteMany({
       where: { id: { in: ids } },
     });

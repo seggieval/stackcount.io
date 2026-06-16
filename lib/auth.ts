@@ -1,8 +1,9 @@
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import CredentialsProvider from "next-auth/providers/credentials"
-import { prisma } from "./prisma"
-import * as bcrypt from "bcryptjs";
+import GoogleProvider from "next-auth/providers/google"
 import type { NextAuthOptions } from "next-auth"
+import bcrypt from "bcryptjs"
+import { prisma } from "./prisma"
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -19,18 +20,18 @@ export const authOptions: NextAuthOptions = {
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
         })
-
-        if (!user) return null
+        if (!user?.hashedPassword) return null
 
         const isValid = await bcrypt.compare(
           credentials.password,
-          user.password
+          user.hashedPassword
         )
-
-        if (!isValid) return null
-
-        return { id: user.id, email: user.email, name: user.name }
+        return isValid ? user : null
       },
+    }),
+    GoogleProvider({
+      clientId: process.env.AUTH_GOOGLE_ID ?? "",
+      clientSecret: process.env.AUTH_GOOGLE_SECRET ?? "",
     }),
   ],
   session: {
@@ -41,5 +42,21 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
     signIn: "/login",
+  },
+  // Google verifies email; allow linking to an existing credentials account.
+  allowDangerousEmailAccountLinking: true,
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.sub = user.id
+      }
+      return token
+    },
+    async session({ session, token }) {
+      if (session.user && token.sub) {
+        session.user.id = token.sub
+      }
+      return session
+    },
   },
 }

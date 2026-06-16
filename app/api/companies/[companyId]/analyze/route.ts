@@ -4,6 +4,7 @@ import crypto from "crypto"
 import { prisma } from "@/lib/prisma"
 import { computeMetrics } from "@/lib/analysis/computeMetrics"
 import { enrich } from "@/lib/analysis/enrichMetrics"
+import { requireCompanyAccess } from "@/lib/require-company-access"
 
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
@@ -185,6 +186,11 @@ export async function POST(req: Request, { params }: { params: { companyId: stri
     const tz = isValidTZ(url.searchParams.get("tz")) ? String(url.searchParams.get("tz")) : "UTC"
     const forceRefresh = url.searchParams.get("refresh") === "1" // only re-analyze when requested
     const companyId = params.companyId
+
+    const access = await requireCompanyAccess(companyId)
+    if ("error" in access) {
+      return new NextResponse(access.error, { status: access.status })
+    }
 
     // Load last 90 days without `select` so we see real field names
     const since = new Date()

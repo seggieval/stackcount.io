@@ -1,9 +1,8 @@
 export const runtime = 'nodejs';
 
 import { NextResponse, NextRequest } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { requireCompanyAccess } from "@/lib/require-company-access";
 
 export async function GET(  
   req: NextRequest,
@@ -15,6 +14,11 @@ export async function GET(
 
   if (!companyId) {
     return NextResponse.json({ error: "Missing companyId" }, { status: 400 });
+  }
+
+  const access = await requireCompanyAccess(companyId);
+  if ("error" in access) {
+    return new NextResponse(access.error, { status: access.status });
   }
 
   const transactions = await prisma.transaction.findMany({

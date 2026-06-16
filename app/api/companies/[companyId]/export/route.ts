@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma" // adjust if your prisma path differs
+import { prisma } from "@/lib/prisma"
+import { requireCompanyAccess } from "@/lib/require-company-access"
 
 // escape for CSV: wrap in quotes and double any quotes inside
 function csvEscape(value: unknown): string {
@@ -27,8 +28,10 @@ export async function GET(req: NextRequest, { params }: { params: { companyId: s
   const end = searchParams.get("end")     // inclusive (we’ll push to 23:59:59)
   const tz = searchParams.get("tz") ?? "UTC"
 
-  // basic auth/ownership check here if you have user in session
-  // const session = await auth(); ensure company belongs to user, etc.
+  const access = await requireCompanyAccess(params.companyId)
+  if ("error" in access) {
+    return new NextResponse(access.error, { status: access.status })
+  }
 
   const where: any = { companyId: params.companyId }
   if (start || end) {

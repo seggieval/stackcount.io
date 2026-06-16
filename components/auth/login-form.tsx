@@ -13,9 +13,18 @@ import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import { Label } from "@/components/ui/label"
 import { signIn } from "next-auth/react"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { useState, useEffect } from "react"
 import GoogleButton from "../GoogleButton"
+
+const AUTH_ERRORS: Record<string, string> = {
+  OAuthAccountNotLinked:
+    "This email is already registered with a password. Sign in with your password, or use the same Google account.",
+  Configuration:
+    "Sign-in is temporarily unavailable. Please try again later.",
+  AccessDenied: "Access was denied. Please try again.",
+  Default: "Sign-in failed. Please try again.",
+}
 
 export function LoginForm({
   className,
@@ -26,6 +35,14 @@ export function LoginForm({
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    const authError = searchParams.get("error")
+    if (authError) {
+      setError(AUTH_ERRORS[authError] ?? AUTH_ERRORS.Default)
+    }
+  }, [searchParams])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
