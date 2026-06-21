@@ -76,6 +76,9 @@ export const metadata: Metadata = {
   icons: {
     icon: [{ url: "/favicon.ico" }],
   },
+  other: {
+    freelancehunt: "7e2d6d2c052cd26",
+  },
 };
 
 export default function RootLayout({
